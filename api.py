@@ -1,9 +1,10 @@
+import os
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 import requests, urllib.parse, base64, time, json
 
 # ================= CONFIG =================
-API_KEY = "CHANGE_ME_123"      # <-- change this
+API_KEY = os.getenv("IMG_API_KEY")      # <-- change this
 DAILY_LIMIT = 10               # per IP per day
 RATE_DB = {}                   # in-memory (soft limit)
 
