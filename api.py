@@ -1,12 +1,11 @@
-import os
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
-import requests, urllib.parse, base64, time, json
+import requests, urllib.parse, base64, json
 
 # ================= CONFIG =================
-API_KEY = os.getenv("IMG_API_KEY")      # <-- change this
-DAILY_LIMIT = 10               # per IP per day
-RATE_DB = {}                   # in-memory (soft limit)
+import os
+API_KEY = os.getenv("IMG_API_KEY") or "MYSECRET123"  # Use Vercel env var or fallback
+# Unlimited, so no daily limit
 
 # ================= ENGINES =================
 
@@ -61,22 +60,6 @@ class handler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(b"Prompt required (min 3 chars)")
             return
-
-        # ---------- RATE LIMIT ----------
-        ip = self.client_address[0]
-        today = time.strftime("%Y-%m-%d")
-
-        RATE_DB.setdefault(ip, {"date": today, "count": 0})
-        if RATE_DB[ip]["date"] != today:
-            RATE_DB[ip] = {"date": today, "count": 0}
-
-        if RATE_DB[ip]["count"] >= DAILY_LIMIT:
-            self.send_response(429)
-            self.end_headers()
-            self.wfile.write(b"Daily limit reached")
-            return
-
-        RATE_DB[ip]["count"] += 1
 
         # ---------- GENERATE ----------
         urls = []
