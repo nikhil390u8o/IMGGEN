@@ -1,6 +1,5 @@
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs, quote
-import json
 
 class handler(BaseHTTPRequestHandler):
 
@@ -10,26 +9,17 @@ class handler(BaseHTTPRequestHandler):
 
         if not prompt:
             self.send_response(400)
-            self.send_header("Content-Type", "application/json")
             self.end_headers()
-            self.wfile.write(json.dumps({
-                "error": "prompt is required"
-            }).encode())
+            self.wfile.write(b"prompt is required")
             return
 
-        # Pollinations direct image URL (FAST + UNLIMITED)
         image_url = (
             "https://image.pollinations.ai/prompt/"
             + quote(prompt)
             + "?nologo=true&quality=high"
         )
 
-        self.send_response(200)
-        self.send_header("Content-Type", "application/json")
+        # 🔥 Direct redirect to image
+        self.send_response(302)
+        self.send_header("Location", image_url)
         self.end_headers()
-
-        self.wfile.write(json.dumps({
-            "status": "success",
-            "prompt": prompt,
-            "image": image_url
-        }).encode())
